@@ -1,0 +1,26 @@
+pkgbase = omarchy-backup
+	pkgdesc = Back up your Omarchy setup (configs, customizations, packages, services) to one file and restore it on a fresh install
+	pkgver = 1.0.0
+	pkgrel = 1
+	url = https://github.com/popovoleksandr/omarchy-backup
+	install = omarchy-backup.install
+	arch = any
+	license = MIT
+	depends = bash
+	depends = coreutils
+	depends = curl
+	depends = diffutils
+	depends = findutils
+	depends = git
+	depends = gum
+	depends = jq
+	depends = pacman
+	depends = systemd
+	depends = tar
+	depends = zstd
+	optdepends = yay: restore AUR packages
+	optdepends = flatpak: back up and restore Flatpak apps
+	source = omarchy-backup-1.0.0.tar.gz::https://github.com/popovoleksandr/omarchy-backup/archive/refs/tags/v1.0.0.tar.gz
+	sha256sums = ed24f14b41b8de4b465ee6c357bc8f3337ff379698e876b42837abf7d22520a0
+
+pkgname = omarchy-backup
