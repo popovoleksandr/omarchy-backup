@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# omarchy-backup: saves the Omarchy setup (configs, customizations, packages,
+# services) into one file and restores it on a fresh install. Run without
+# arguments for help.
+
+set -euo pipefail
+
+ROOT=$(cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")/.." && pwd)
+source "$ROOT/lib/common.sh"
+source "$ROOT/lib/create.sh"
+source "$ROOT/lib/restore.sh"
+source "$ROOT/lib/menu.sh"
+
+usage() {
+  cat <<EOF
+Usage: omarchy-backup <command> [options]
+
+  create [-o <file|folder>] [--full]
+                    Save configs, customizations and the package list to
+                    $(tilde "$BACKUP_DIR")/omarchy-backup-<host>-<date>.tar.zst
+                    --full also saves files that match Omarchy's defaults
+  restore [<file>] [--only <steps>] [--skip <steps>] [--dry-run] [--yes]
+                    Put a backup back. Without a file, pick one from a list.
+                    Steps: ${STEP_KEYS[*]}
+                    (etc and prune run only when chosen)
+  show <file> [--json]
+                    Summarize a backup, or print its manifest
+  list              List saved backups and undo files
+  open              Open the backup folder
+  menu              Open System > Omarchy Backup in the Omarchy menu
+  setup             Add System > Omarchy Backup to the Omarchy menu
+  unsetup           Remove System > Omarchy Backup from the Omarchy menu
+  version           Print the version
+
+Choose what gets saved in ~/.config/omarchy-backup/paths; see
+$ROOT/share/paths for the defaults.
+EOF
+}
+
+cmd_show() {
+  local archive=${1:-} json=${2:-false} manifest size
+  [[ -n $archive ]] || die "which backup? run: $CMD show <file>"
+  [[ -f $archive ]] || die "no such file: $archive"
+  manifest=$(read_manifest "$archive") || true
+  jq -e '.format == "omarchy-backup"' >/dev/null 2>&1 <<<"$manifest" || die "$archive isn't an omarchy-backup file"
+  if $json; then
+    jq . <<<"$manifest"
+    return
+  fi
+  size=$(stat -c %s "$archive")
+  echo "$(tilde "$(realpath "$archive")") ($(human_size "$size"))"
+  if [[ $(jq -r '.kind // "backup"' <<<"$manifest") == undo ]]; then
+    echo "    Files a restore replaced on $(jq -r '.created | sub("T"; " ") | .[0:16]' <<<"$manifest"):"
+    jq -r '(.files.home[]?.path | "    ~/" + .), (.files.etc[]? | "    " + .)' <<<"$manifest"
+    return
+  fi
+  summarize <(printf '%s\n' "$manifest")
+}
+
+cmd_list() {
+  local file found=false
+  echo "Backups in $(tilde "$BACKUP_DIR"):"
+  while IFS= read -r file; do
+    found=true
+    printf '  %s  %9s  %s\n' "$(date -d "@$(stat -c %Y "$file")" '+%Y-%m-%d %H:%M')" \
+      "$(human_size "$(stat -c %s "$file")")" "$(tilde "$file")"
+  done < <(find_backups)
+  $found || echo "  none yet; make one with: $CMD create"
+
+  found=false
+  for file in "$STATE_DIR"/undo-*.tar.zst; do
+    [[ -f $file ]] || continue
+    $found || printf '\nUndo files (what restores replaced), newest last:\n'
+    found=true
+    printf '  %s  %9s  %s\n' "$(date -d "@$(stat -c %Y "$file")" '+%Y-%m-%d %H:%M')" \
+      "$(human_size "$(stat -c %s "$file")")" "$(tilde "$file")"
+  done
+  echo
+  echo "Details: $CMD show <file>    Restore: $CMD restore [<file>]"
+}
+
+cmd_open() {
+  mkdir -p "$BACKUP_DIR"
+  setsid -f xdg-open "$BACKUP_DIR" >/dev/null 2>&1
+}
+
+# Pull options out of the arguments; what's left is positional.
+OUTPUT='' FULL=false JSON=false ONLY='' SKIP='' AUTO=false
+args=()
+while (($# > 0)); do
+  case $1 in
+  -o | --output)
+    OUTPUT=${2:?"$1 needs a file or folder"}
+    shift
+    ;;
+  --output=*) OUTPUT=${1#*=} ;;
+  --full) FULL=true ;;
+  --json) JSON=true ;;
+  --only)
+    ONLY=${2:?"--only needs steps, like: --only files,look"}
+    shift
+    ;;
+  --only=*) ONLY=${1#*=} ;;
+  --skip)
+    SKIP=${2:?"--skip needs steps, like: --skip aur,flatpak"}
+    shift
+    ;;
+  --skip=*) SKIP=${1#*=} ;;
+  -y | --yes) ASSUME_YES=true ;;
+  -n | --dry-run) DRY_RUN=true ;;
+  --auto) AUTO=true ;;
+  -h | --help) args+=(help) ;;
+  -*) die "unknown option $1 (see: omarchy-backup help)" ;;
+  *) args+=("$1") ;;
+  esac
+  shift
+done
+set -- "${args[@]}"
+
+case "${1:-}" in
+create | backup) cmd_create "${2:-$OUTPUT}" ;;
+restore) cmd_restore "${2:-}" ;;
+show | info) cmd_show "${2:-}" "$JSON" ;;
+list | ls) cmd_list ;;
+open) cmd_open ;;
+menu) cmd_menu ;;
+setup) cmd_setup "$AUTO" ;;
+unsetup) cmd_unsetup ;;
+version | --version) echo "omarchy-backup $VERSION" ;;
+help | "") usage ;;
+*)
+  usage >&2
+  exit 1
+  ;;
+esac

@@ -1,0 +1,21 @@
+post_install() {
+  cat <<'MSG'
+==> omarchy-backup: System > Omarchy Backup appears in the Omarchy menu at your next login.
+    To add it now, open "Omarchy Backup" from the app launcher, or run: omarchy-backup setup
+    Restoring a fresh install: omarchy-backup restore <backup file>
+MSG
+}
+
+post_upgrade() {
+  cat <<'MSG'
+==> omarchy-backup: System > Omarchy Backup refreshes at your next login (or now: omarchy-backup setup).
+MSG
+}
+
+pre_remove() {
+  cat <<'MSG'
+==> omarchy-backup: System > Omarchy Backup hides itself once the package is gone. To take it out of
+    ~/.config/omarchy/extensions/omarchy-menu.jsonc too, run "omarchy-backup unsetup" first.
+    Your backups in ~/Backups/omarchy stay.
+MSG
+}

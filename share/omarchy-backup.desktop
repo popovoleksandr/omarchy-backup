@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Omarchy Backup
+GenericName=Backup and Restore
+Comment=Back up your Omarchy setup and packages, or restore them on a fresh install
+Exec=omarchy-backup menu
+Icon=omarchy-backup
+Terminal=false
+Categories=Utility;Archiving;
+Keywords=omarchy;backup;restore;dotfiles;config;packages;reinstall;migrate;

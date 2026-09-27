@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Omarchy Backup menu entry
+Comment=Adds System > Omarchy Backup to the Omarchy menu at login; `omarchy-backup unsetup` turns it off
+Exec=omarchy-backup setup --auto
+Terminal=false
+NoDisplay=true

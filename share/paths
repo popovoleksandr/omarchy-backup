@@ -1,0 +1,184 @@
+# What omarchy-backup saves, besides everything Omarchy seeds into a new home
+# (the files in /etc/skel: ~/.bashrc, ~/.config/hypr, ~/.config/omarchy, the
+# terminal configs, ~/.local/share/applications, ...).
+#
+# Only files that differ from a fresh install go into a backup; defaults you
+# deleted are remembered and deleted again on restore.
+#
+# Add your own lines to ~/.config/omarchy-backup/paths, for example:
+#   include ~/.config/VSCodium/User/settings.json
+#   exclude ~/.config/omarchy/backgrounds/*.mp4
+# An include is a file or a folder (saved with everything in it). An exclude is
+# a path or a pattern; * also matches across /.
+
+# Session environment, user services, default apps and XDG folders
+include ~/.config/uwsm
+include ~/.config/environment.d
+include ~/.config/systemd/user
+include ~/.config/autostart
+include ~/.config/mimeapps.list
+include ~/.config/user-dirs.dirs
+include ~/.config/xdg-terminal-exec
+include ~/.config/fontconfig
+include ~/.config/gtk-3.0/bookmarks
+include ~/.config/mise
+include ~/.config/voxtype
+include ~/.XCompose
+include ~/.inputrc
+include ~/.config/omarchy-backup
+
+# Configs from Omarchy 3, before the Omarchy shell
+include ~/.config/waybar
+include ~/.config/walker
+include ~/.config/elephant
+include ~/.config/mako
+include ~/.config/swayosd
+
+# Web apps, TUI launchers, their icons, and fonts you installed yourself
+include ~/.local/share/applications
+include ~/.local/share/icons
+include ~/.local/share/fonts
+
+# App settings: everything else in ~/.config (VSCodium's settings.json,
+# LibreOffice, Inkscape, gh, omamail, ...), without the browser profiles,
+# caches and logins excluded below. Editor extensions and the GNOME/GTK
+# settings in dconf are saved as lists and installed or loaded on restore.
+include ~/.config
+
+# Your own scripts and Omarchy's launchers for mise tools (claude, codex, ...)
+include ~/.local/bin
+
+# Claude Code: settings, your skills, agents, commands, hooks, themes, the
+# plugin list, and each project's memory. Not the login (.credentials.json),
+# chats, prompt history or ~/.claude.json (account details and caches).
+include ~/.claude/CLAUDE.md
+include ~/.claude/settings.json
+include ~/.claude/settings.local.json
+include ~/.claude/keybindings.json
+include ~/.claude/agents
+include ~/.claude/commands
+include ~/.claude/output-styles
+include ~/.claude/hooks
+include ~/.claude/skills
+include ~/.claude/themes
+include ~/.claude/plugins/installed_plugins.json
+include ~/.claude/plugins/known_marketplaces.json
+include ~/.claude/projects/*/memory
+
+# Omarchy settings: toggles, default apps, weather, power profiles, layouts.
+# The theme, background and font are saved by name and set again on restore.
+include ~/.local/state/omarchy/toggles
+include ~/.local/state/omarchy/defaults
+include ~/.local/state/omarchy/settings
+include ~/.local/state/omarchy/powerprofiles
+include ~/.local/state/omarchy/workspace-layouts
+
+# System drop-ins you added (lid switch, sleep, kernel modules, udev rules, ...).
+# Only files no package owns are saved, and restoring them is opt-in.
+include /etc/systemd/logind.conf.d
+include /etc/systemd/sleep.conf.d
+include /etc/systemd/system.conf.d
+include /etc/systemd/journald.conf.d
+include /etc/systemd/resolved.conf.d
+include /etc/modprobe.d
+include /etc/modules-load.d
+include /etc/sysctl.d
+include /etc/udev/rules.d
+include /etc/udev/hwdb.d
+include /etc/tmpfiles.d
+include /etc/X11/xorg.conf.d
+include /etc/NetworkManager/conf.d
+include /etc/keyd
+include /etc/sddm.conf.d
+
+# Browser profiles hold your logins; browser sync brings the rest back
+exclude ~/.config/chromium
+exclude ~/.config/chromium-headless
+exclude ~/.config/google-chrome*
+exclude ~/.config/microsoft-edge*
+exclude ~/.config/BraveSoftware
+exclude ~/.config/vivaldi*
+exclude ~/.config/opera*
+exclude ~/.config/mozilla
+# Apps whose data is tied to this machine or account: Signal's messages and
+# keys, TeamViewer's ID, Spotify's account cache, the PulseAudio cookie, and
+# dconf's database (saved as text instead)
+exclude ~/.config/Signal
+exclude ~/.config/teamviewer
+exclude ~/.config/spotify/Users
+exclude ~/.config/pulse
+exclude ~/.config/dconf
+# Caches and storage of Electron apps and VS Code-family editors
+exclude ~/.config/*/Cache
+exclude ~/.config/*/Code Cache
+exclude ~/.config/*/CachedData
+exclude ~/.config/*/CachedExtensionVSIXs
+exclude ~/.config/*/CachedProfilesData
+exclude ~/.config/*/GPUCache
+exclude ~/.config/*/DawnCache
+exclude ~/.config/*/DawnGraphiteCache
+exclude ~/.config/*/DawnWebGPUCache
+exclude ~/.config/*/GrShaderCache
+exclude ~/.config/*/ShaderCache
+exclude ~/.config/*/Service Worker
+exclude ~/.config/*/WebStorage
+exclude ~/.config/*/Local Storage
+exclude ~/.config/*/Session Storage
+exclude ~/.config/*/IndexedDB
+exclude ~/.config/*/Shared Dictionary
+exclude ~/.config/*/SharedStorage*
+exclude ~/.config/*/blob_storage
+exclude ~/.config/*/Crashpad
+exclude ~/.config/*/Partitions
+exclude ~/.config/*/Dictionaries
+exclude ~/.config/*/Cookies*
+exclude ~/.config/*/Trust Tokens*
+exclude ~/.config/*/TransportSecurity
+exclude ~/.config/*/Network Persistent State
+exclude ~/.config/*/DIPS*
+exclude ~/.config/*/Local State
+exclude ~/.config/*/machineid
+exclude ~/.config/*/logs
+exclude ~/.config/*/User/workspaceStorage
+exclude ~/.config/*/User/globalStorage
+exclude ~/.config/*/User/History
+exclude ~/.config/*/cache
+exclude ~/.config/libreoffice/*/user/backup
+exclude ~/.config/libreoffice/*/user/temp
+exclude ~/.config/libreoffice/*/user/pack
+exclude ~/.config/libreoffice/*/user/extensions/bundled
+exclude ~/.config/libreoffice/*/user/extensions/shared
+exclude ~/.config/libreoffice/*/user/extensions/tmp
+# Input method bus addresses, named after this machine
+exclude ~/.config/ibus/bus
+exclude ~/.config/fcitx/dbus
+exclude ~/.config/Pinta/addins/addin-db-*
+# Logins and tokens. To save one anyway, name the file itself in an include
+# in ~/.config/omarchy-backup/paths, for example:
+#   include ~/.config/gh/hosts.yml
+exclude *credentials*
+exclude *token*
+exclude *secret*
+exclude *password*
+exclude *.pem
+exclude */keyrings
+exclude ~/.config/gh/hosts.yml
+exclude *.lock
+# Logins and chats, even if you include all of ~/.claude; skills synced from
+# your claude.ai account come back when you sign in
+exclude ~/.claude/.credentials.json
+exclude ~/.claude/*.jsonl
+exclude ~/.claude/skills/synced
+# What Omarchy's installer writes for this machine and user
+exclude ~/.local/state/omarchy/toggles/hypr/internal-monitor-*
+exclude /etc/sddm.conf.d/autologin.conf
+exclude /etc/sddm.conf.d/*omarchy*
+# Backup copies, logs and caches
+exclude *.bak
+exclude *.bak.*
+exclude *~
+exclude *.log
+exclude */__pycache__
+exclude */node_modules
+exclude */icon-theme.cache
+exclude */mimeinfo.cache

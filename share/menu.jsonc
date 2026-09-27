@@ -1,0 +1,8 @@
+// >>> omarchy-backup >>>
+// System > Omarchy Backup, added by omarchy-backup. `omarchy-backup unsetup` removes it.
+"system.omarchy-backup": {"icon":"󰁯","label":"Omarchy Backup","description":"Save or restore your Omarchy setup and packages","when":"command -v @CMD@ >/dev/null"},
+"system.omarchy-backup.create": {"icon":"󰆓","label":"Back Up Now","action":"omarchy-launch-floating-terminal-with-presentation '@CMD@ create'"},
+"system.omarchy-backup.restore": {"icon":"󰦛","label":"Restore","action":"omarchy-launch-floating-terminal-with-presentation '@CMD@ restore'"},
+"system.omarchy-backup.list": {"icon":"󰋚","label":"Saved Backups","action":"omarchy-launch-floating-terminal-with-presentation '@CMD@ list'"},
+"system.omarchy-backup.folder": {"icon":"󰝰","label":"Open Backup Folder","action":"@CMD@ open"},
+// <<< omarchy-backup <<<
