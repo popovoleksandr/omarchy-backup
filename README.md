@@ -9,7 +9,7 @@ It lives in the Omarchy menu under **System > Omarchy Backup**:
 | **Back Up Now** | Saves a backup to `~/Backups/omarchy/` |
 | **Restore** | Picks a backup, lets you choose what to restore, and restores it |
 | **Saved Backups** | Lists your backups and undo files |
-| **Choose What's Saved** | Opens `~/.config/omarchy-backup/paths` in your editor (see [Choosing what's saved](#choosing-whats-saved)) |
+| **Configure...** | Opens `~/.config/omarchy-backup/paths` in your editor (see [Choosing what's saved](#choosing-whats-saved)) |
 | **Open Backup Folder** | Opens `~/Backups/omarchy/` in the file manager |
 
 ## What a backup holds
@@ -126,7 +126,7 @@ omarchy-backup setup | unsetup | menu
 
 ## Choosing what's saved
 
-Add lines to `~/.config/omarchy-backup/paths` (**System > Omarchy Backup > Choose What's Saved**, or `omarchy-backup edit`), in the same format as [`share/paths`](share/paths):
+Add lines to `~/.config/omarchy-backup/paths` (**System > Omarchy Backup > Configure...**, or `omarchy-backup edit`), in the same format as [`share/paths`](share/paths):
 
 ```
 include ~/.config/VSCodium/User/settings.json

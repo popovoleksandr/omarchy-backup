@@ -4,6 +4,6 @@
 "system.omarchy-backup.create": {"icon":"󰆓","label":"Back Up Now","action":"omarchy-launch-floating-terminal-with-presentation '@CMD@ create'"},
 "system.omarchy-backup.restore": {"icon":"󰦛","label":"Restore","action":"omarchy-launch-floating-terminal-with-presentation '@CMD@ restore'"},
 "system.omarchy-backup.list": {"icon":"󰋚","label":"Saved Backups","action":"omarchy-launch-floating-terminal-with-presentation '@CMD@ list'"},
-"system.omarchy-backup.paths": {"icon":"󰏫","label":"Choose What's Saved","description":"Edit ~/.config/omarchy-backup/paths","action":"@CMD@ edit"},
+"system.omarchy-backup.paths": {"icon":"󰏫","label":"Configure...","description":"Edit ~/.config/omarchy-backup/paths","action":"@CMD@ edit"},
 "system.omarchy-backup.folder": {"icon":"󰝰","label":"Open Backup Folder","action":"@CMD@ open"},
 // <<< omarchy-backup <<<
