@@ -1,6 +1,6 @@
 # Maintainer: Oleksandr Popov <anantaramdas@outlook.com>
 pkgname=omarchy-backup
-pkgver=1.0.0
+pkgver=1.1.0
 pkgrel=1
 pkgdesc="Back up your Omarchy setup (configs, customizations, packages, services) to one file and restore it on a fresh install"
 arch=(any)
@@ -11,7 +11,7 @@ optdepends=('yay: restore AUR packages'
             'flatpak: back up and restore Flatpak apps')
 install=omarchy-backup.install
 source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('ed24f14b41b8de4b465ee6c357bc8f3337ff379698e876b42837abf7d22520a0')
+sha256sums=('415dc382d7a024823f56430b636e68b931537079948a33339045fba667d29b78')
 
 package() {
   cd "$pkgname-$pkgver"
