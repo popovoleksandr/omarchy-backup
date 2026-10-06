@@ -64,7 +64,8 @@ load) cat >"$HOME/.fake-dconf" ;;
 esac
 exit 0
 FAKE
-chmod +x "$t/bin/codium" "$t/bin/dconf"
+printf '#!/bin/bash\necho "$1" >"$HOME/.edited"\n' >"$t/bin/omarchy-launch-editor"
+chmod +x "$t/bin/codium" "$t/bin/dconf" "$t/bin/omarchy-launch-editor"
 # What Omarchy seeds into a new home.
 mkdir -p "$t/skel/.config/hypr" "$t/skel/.config/omarchy/extensions" "$t/skel/.local/share/applications"
 echo 'default hyprland' >"$t/skel/.config/hypr/hyprland.lua"
@@ -225,6 +226,7 @@ cp "$t/skel/.config/omarchy/extensions/omarchy-menu.jsonc" "$menu"
 ob "$new" setup >/dev/null
 check "setup adds System > Omarchy Backup" grep -q '"system.omarchy-backup":' "$menu"
 check "the menu file stays valid" bash -c "ROOT='$root'; source '$root/lib/common.sh'; menu_jsonc_valid '$menu'"
+check "with a row to choose what's saved" grep -q "\"system.omarchy-backup.paths\".*$root/bin/omarchy-backup edit" "$menu"
 cp "$menu" "$t/menu-1"
 ob "$new" setup >/dev/null
 check "setup twice adds it once" cmp -s "$menu" "$t/menu-1"
@@ -234,6 +236,15 @@ ob "$new" setup --auto >/dev/null
 check "the login autostart respects unsetup" bash -c "! grep -q omarchy-backup '$menu'"
 ob "$new" setup >/dev/null
 check "setup adds it back" grep -q '"system.omarchy-backup":' "$menu"
+
+echo "Editing the paths file"
+rm -f "$new/.config/omarchy-backup/paths"
+ob "$new" edit
+check "edit starts the paths file with a guide" grep -q '^#   include ~/.ssh/config' "$new/.config/omarchy-backup/paths"
+check "and opens it in Omarchy's editor" grep -qx "$new/.config/omarchy-backup/paths" "$new/.edited"
+echo 'include ~/notes.txt' >>"$new/.config/omarchy-backup/paths"
+ob "$new" edit
+check "edit keeps what's already there" grep -qx 'include ~/notes.txt' "$new/.config/omarchy-backup/paths"
 
 echo
 echo "$passed passed, $failed failed"

@@ -27,13 +27,14 @@ Usage: omarchy-backup <command> [options]
                     Summarize a backup, or print its manifest
   list              List saved backups and undo files
   open              Open the backup folder
+  edit              Edit what gets saved (~/.config/omarchy-backup/paths)
   menu              Open System > Omarchy Backup in the Omarchy menu
   setup             Add System > Omarchy Backup to the Omarchy menu
   unsetup           Remove System > Omarchy Backup from the Omarchy menu
   version           Print the version
 
-Choose what gets saved in ~/.config/omarchy-backup/paths; see
-$ROOT/share/paths for the defaults.
+Choose what gets saved in ~/.config/omarchy-backup/paths (edit opens it);
+see $ROOT/share/paths for the defaults.
 EOF
 }
 
@@ -84,6 +85,30 @@ cmd_open() {
   setsid -f xdg-open "$BACKUP_DIR" >/dev/null 2>&1
 }
 
+# Opens the user's paths file in Omarchy's editor, starting it with a short
+# guide the first time.
+cmd_edit() {
+  if [[ ! -e $USER_PATHS_FILE ]]; then
+    mkdir -p "$CONFIG_DIR"
+    cat >"$USER_PATHS_FILE" <<EOF
+# What omarchy-backup saves on top of its defaults, which are listed in
+# $ROOT/share/paths
+#
+#   include <file or folder>   save it, a folder with everything in it. A file
+#                              named on its own is saved even when an exclude
+#                              matches it.
+#   exclude <path or pattern>  leave it out; * also matches across /
+#
+# For example:
+#   include ~/.ssh/config
+#   include ~/.config/gh/hosts.yml
+#   exclude ~/.config/omarchy/backgrounds/*.mp4
+EOF
+  fi
+  command -v omarchy-launch-editor >/dev/null && exec omarchy-launch-editor "$USER_PATHS_FILE"
+  exec "${EDITOR:-nano}" "$USER_PATHS_FILE"
+}
+
 # Pull options out of the arguments; what's left is positional.
 OUTPUT='' FULL=false JSON=false ONLY='' SKIP='' AUTO=false
 args=()
@@ -123,6 +148,7 @@ restore) cmd_restore "${2:-}" ;;
 show | info) cmd_show "${2:-}" "$JSON" ;;
 list | ls) cmd_list ;;
 open) cmd_open ;;
+edit | paths) cmd_edit ;;
 menu) cmd_menu ;;
 setup) cmd_setup "$AUTO" ;;
 unsetup) cmd_unsetup ;;

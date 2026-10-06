@@ -9,6 +9,7 @@ It lives in the Omarchy menu under **System > Omarchy Backup**:
 | **Back Up Now** | Saves a backup to `~/Backups/omarchy/` |
 | **Restore** | Picks a backup, lets you choose what to restore, and restores it |
 | **Saved Backups** | Lists your backups and undo files |
+| **Choose What's Saved** | Opens `~/.config/omarchy-backup/paths` in your editor (see [Choosing what's saved](#choosing-whats-saved)) |
 | **Open Backup Folder** | Opens `~/Backups/omarchy/` in the file manager |
 
 ## What a backup holds
@@ -113,6 +114,7 @@ omarchy-backup restore [<file>] [--only <steps>] [--skip <steps>] [--dry-run] [-
 omarchy-backup show <file> [--json]
 omarchy-backup list
 omarchy-backup open
+omarchy-backup edit
 omarchy-backup setup | unsetup | menu
 ```
 
@@ -120,10 +122,11 @@ omarchy-backup setup | unsetup | menu
 - `restore --dry-run` prints what each step would do and changes nothing. Combine it with `--only` to check one step, for example `--dry-run --only files`.
 - `restore --only packages,aur` or `--skip look` choose the steps without the checklist; steps are comma-separated.
 - `restore --yes` runs the default steps without asking, which is useful from a script.
+- `edit` opens `~/.config/omarchy-backup/paths` in Omarchy's default editor, creating it with a short guide the first time.
 
 ## Choosing what's saved
 
-Add lines to `~/.config/omarchy-backup/paths`, in the same format as [`share/paths`](share/paths):
+Add lines to `~/.config/omarchy-backup/paths` (**System > Omarchy Backup > Choose What's Saved**, or `omarchy-backup edit`), in the same format as [`share/paths`](share/paths):
 
 ```
 include ~/.config/VSCodium/User/settings.json
@@ -134,6 +137,18 @@ exclude ~/.config/omarchy/backgrounds/*.mp4
 An `include` is a file or a folder in your home folder or in `/etc`, or a pattern such as `~/.claude/projects/*/memory`. A file named on its own in an include is saved even when an exclude matches it; that is how you keep a login you do want, such as `include ~/.config/gh/hosts.yml`. From `/etc`, a folder's files are saved only if no package owns them, while a single file you name is saved in any case. An `exclude` is a path or a pattern, where `*` also matches across `/`. This file itself is part of every backup.
 
 Backups go to `~/Backups/omarchy`. To change that, put `BACKUP_DIR=~/somewhere/else` into `~/.config/omarchy-backup/config`. `MAX_FILE_MB=500` there raises the size limit for single files (`0` removes it).
+
+### Common dotfiles and folders
+
+| Path | Saved by default | Notes |
+|---|---|---|
+| `~/.config` | Yes | Everything except browser profiles, Signal, caches and logins (see the excludes in [`share/paths`](share/paths)). |
+| `~/.bashrc`, `~/.bash_profile`, `~/.bash_logout` | If you changed them | They come from `/etc/skel`, so only edited copies are saved. `create --full` saves them in any case. |
+| `~/.claude` | Partly | Settings, `CLAUDE.md`, skills, agents, commands, hooks, themes, the plugin list and project memory. Not the login, chats or prompt history. |
+| `~/.bash_history` | No | Add `include ~/.bash_history`. It can hold passwords or tokens you typed on the command line. |
+| `~/.claude.json` | No | Account details and caches, but also MCP servers added with `--scope user` and per-project settings. Add `include ~/.claude.json` if you need those. |
+| `~/.agents`, `~/.codex`, `~/.pi`, `~/.hermes` | No | Omarchy links its own agent skills into their `skills` folders, and a fresh install links them again. Include a folder, such as `include ~/.agents/skills`, if you keep your own skills there. |
+| `~/.ssh` | No | `include ~/.ssh/config` and `include ~/.ssh/known_hosts` are safe to add. Private keys (`id_*`) match no exclude, so `include ~/.ssh` puts them into the backup unencrypted. |
 
 ## Removing
 
@@ -176,7 +191,7 @@ Tested on 2026-09-26 with Omarchy 4.0.4 (stable), gum 2.0.0, GNU tar 1.35, zstd 
 - Verified: restoring that backup into a home folder freshly copied from `/etc/skel` reproduced all 85 files byte for byte, with the same modes. Symlinks into the old home folder pointed into the new one. A second restore changed nothing. Restoring the undo file put Omarchy's defaults back.
 - Verified: a dry run of every step against the machine the backup came from reported nothing to do. A dry run of a backup edited to hold missing, unknown and moved packages, an unknown AUR name, a Flatpak app, a git theme, a disabled service, a new group, another timezone, another theme, a missing font and another channel took the right action for each, and listed the problems at the end.
 - Verified: the interactive restore through a terminal: the checklist starts with the right steps ticked and honors `--skip`, and the package review defaults to no.
-- Verified: `tests/run.sh` (64 checks) covers changed, added, untouched, excluded, oversized and removed files, symlinks, a git theme with local changes cloned from a local repository, extra and pattern includes, what's kept out of `~/.claude`, the mise tools step, Claude plugins (user scope only), an Omarchy plugin from git, app settings with caches, logins and Signal left out, a login saved on purpose, editor extensions (including one the marketplace lacks) and dconf, backups with unsafe paths, undo, and adding and removing the menu block.
+- Verified: `tests/run.sh` (68 checks) covers changed, added, untouched, excluded, oversized and removed files, symlinks, a git theme with local changes cloned from a local repository, extra and pattern includes, what's kept out of `~/.claude`, the mise tools step, Claude plugins (user scope only), an Omarchy plugin from git, app settings with caches, logins and Signal left out, a login saved on purpose, editor extensions (including one the marketplace lacks) and dconf, backups with unsafe paths, undo, adding and removing the menu block, and `edit` starting and opening the paths file.
 - Verified: a dry run of the tools step on this machine lists claude, codex, gh and node and would run `mise install`.
 - Verified: a real restore of the `repos`, `files` and `claude` steps into a fresh home cloned the omamail shell plugin from GitHub at its saved commit, and `claude plugin list` there shows rust-analyzer-lsp enabled. In a separate fresh home holding only the restored plugin list, Claude reported the plugin as "failed to load" until `claude plugin install` downloaded it again.
 - Verified: the menu block parsed with Omarchy's own `MenuModel.js` lands under System, after Shutdown, next to existing extension entries.
